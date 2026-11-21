@@ -1,0 +1,5 @@
+{
+  "FLAVOR": "dev",
+  "API_BASE_URL": "https://api.dev.example.com",
+  "ENABLE_HTTP_LOGS": true
+}

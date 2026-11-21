@@ -1,0 +1,53 @@
+{
+  "@@locale": "en",
+  "appTitle": "Enterprise MVVM",
+  "loginTitle": "Sign in",
+  "loginHint": "Demo password is 123456. Try member@demo.com, admin@demo.com, or both@demo.com.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "loginAction": "Sign in",
+  "logoutAction": "Log out",
+  "failureNetwork": "Network connection failed. Try again.",
+  "failureUnauthorized": "Your session has expired. Sign in again.",
+  "failureValidation": "Check the form and try again.",
+  "failureInvalidCredentials": "Email or password is incorrect.",
+  "failureServer": "The server could not complete the request.",
+  "failureCache": "Saved data could not be read.",
+  "failureForbidden": "You do not have access to this.",
+  "failureUnknown": "Something went wrong.",
+  "memberHomeTitle": "Member",
+  "adminHomeTitle": "Admin",
+  "roleMember": "Member",
+  "roleAdmin": "Admin",
+  "activeRole": "Active role: {role}",
+  "@activeRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "signedInAs": "Signed in as {name}",
+  "@signedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "switchToRole": "Switch to {role}",
+  "@switchToRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "themeToggle": "Theme",
+  "languageToggle": "Language",
+  "emptyTitle": "Nothing here yet",
+  "retry": "Retry",
+  "offlineBanner": "You are offline",
+  "splashLoading": "Loading",
+  "profileTitle": "Profile"
+}
