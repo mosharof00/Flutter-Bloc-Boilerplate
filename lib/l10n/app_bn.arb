@@ -28,5 +28,14 @@
   "retry": "আবার চেষ্টা",
   "offlineBanner": "আপনি অফলাইনে আছেন",
   "splashLoading": "লোড হচ্ছে",
-  "profileTitle": "Profile"
+  "homeTitle": "হোম",
+  "productsTitle": "পণ্য",
+  "loadMore": "আরও দেখুন",
+  "emailHint": "name@company.com",
+  "passwordHint": "পাসওয়ার্ড লিখুন",
+  "showPassword": "পাসওয়ার্ড দেখান",
+  "hidePassword": "পাসওয়ার্ড লুকান",
+  "couldNotOpenLink": "এই লিঙ্কটি খোলা যায়নি।",
+  "dialogOk": "ঠিক আছে",
+  "dialogCancel": "বাতিল"
 }

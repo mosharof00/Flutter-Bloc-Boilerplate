@@ -83,6 +83,20 @@ void main() {
     await tester.pump();
     expect(find.byKey(const Key('role_switch')), findsNothing);
     expect(find.text('Signed in as Member Demo'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav_products')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Notebook'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('products_load_more')));
+    await tester.pump();
+    await tester.pump();
+    await tester.scrollUntilVisible(
+      find.text('Chair'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Chair'), findsOneWidget);
     await container.dependencies.themeCubit.close();
     await container.dependencies.localeCubit.close();
   });

@@ -23,6 +23,8 @@ dependencies:
   cached_network_image: ^4.0.7
   shimmer: ^4.0.0
   flutter_svg: ^2.5.0
+  google_nav_bar: ^5.0.7
+  url_launcher: ^6.3.2
   intl: ^0.20.3
   meta: ^1.19.0
 
@@ -45,6 +47,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/icons/
   fonts:
     - family: Inter
       fonts:

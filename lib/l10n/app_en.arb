@@ -49,5 +49,14 @@
   "retry": "Retry",
   "offlineBanner": "You are offline",
   "splashLoading": "Loading",
-  "profileTitle": "Profile"
+  "homeTitle": "Home",
+  "productsTitle": "Products",
+  "loadMore": "Load more",
+  "emailHint": "name@company.com",
+  "passwordHint": "Enter password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "couldNotOpenLink": "This link could not be opened.",
+  "dialogOk": "OK",
+  "dialogCancel": "Cancel"
 }

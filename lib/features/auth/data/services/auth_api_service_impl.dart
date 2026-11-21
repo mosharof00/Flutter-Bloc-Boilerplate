@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:enterprise_mvvm/core/error/app_exception.dart';
 import 'package:enterprise_mvvm/core/network/dio_failure_mapper.dart';
+import 'package:enterprise_mvvm/core/network/json_body.dart';
 import 'package:enterprise_mvvm/features/auth/data/dto/login_request_dto.dart';
 import 'package:enterprise_mvvm/features/auth/data/dto/login_response_dto.dart';
 import 'package:enterprise_mvvm/features/auth/data/dto/refresh_request_dto.dart';
 import 'package:enterprise_mvvm/features/auth/data/dto/user_dto.dart';
 import 'package:enterprise_mvvm/features/auth/data/services/auth_api_service.dart';
-import 'package:enterprise_mvvm/features/auth/data/services/json_body.dart';
 
 final class AuthApiServiceImpl implements AuthApiService {
   AuthApiServiceImpl({required this._dio, required this._refreshDio});

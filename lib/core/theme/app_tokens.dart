@@ -8,6 +8,7 @@ abstract final class AppPalette {
   static const Color background = Color(0xFFF6F8FA);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color onSurface = Color(0xFF1C1C1E);
+  static const Color hint = Color(0xFF818898);
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkElevated = Color(0xFF2C2C2C);

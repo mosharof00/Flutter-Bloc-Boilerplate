@@ -14,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../fakes/fake_auth_repository.dart';
+import '../../fakes/fake_product_repository.dart';
 import '../../fakes/fake_session_repository.dart';
 import '../../support/test_app.dart';
 
@@ -57,6 +58,7 @@ AppDependencies _dependencies(PreferencesStore preferences) {
     ),
     authRepository: FakeAuthRepository(),
     sessionRepository: FakeSessionRepository(const SessionUnknown()),
+    productRepository: FakeProductRepository(),
     themeCubit: ThemeCubit(preferences),
     localeCubit: LocaleCubit(preferences),
     connectivity: const DefaultConnectivityService(),

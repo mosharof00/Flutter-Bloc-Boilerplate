@@ -23,6 +23,7 @@ import 'package:enterprise_mvvm/core/storage/token_store.dart';
 import 'package:enterprise_mvvm/core/theme/locale_cubit.dart';
 import 'package:enterprise_mvvm/core/theme/theme_cubit.dart';
 import 'package:enterprise_mvvm/features/auth/domain/repositories/auth_repository.dart';
+import 'package:enterprise_mvvm/features/products/domain/repositories/product_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -79,6 +80,7 @@ Future<AppContainer> buildContainer(AppConfig config) async {
     config: config,
     authRepository: getIt<AuthRepository>(),
     sessionRepository: getIt<SessionRepository>(),
+    productRepository: getIt<ProductRepository>(),
     themeCubit: themeCubit,
     localeCubit: localeCubit,
     connectivity: connectivity,

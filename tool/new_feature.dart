@@ -8,7 +8,7 @@ import 'dart:io';
 ///
 /// Run from the project root, then:
 /// `dart run build_runner build --delete-conflicting-outputs`
-void main(List<String> args) {
+Future<void> main(List<String> args) async {
   if (args.isEmpty || args.contains('--help') || args.contains('-h')) {
     stdout.writeln(
       'Usage: dart run tool/new_feature.dart <snake_name> [--use-case]',
@@ -107,6 +107,18 @@ void main(List<String> args) {
   _addArbKey(File('lib/l10n/app_bn.arb'), '${camel}Title', _title(name));
 
   stdout.writeln('Created feature $name under ${root.path}.');
+  final l10n = await Process.run('flutter', const <String>['gen-l10n']);
+  stdout.write(l10n.stdout);
+  stderr.write(l10n.stderr);
+  if (l10n.exitCode != 0) {
+    stderr.writeln(
+      'The screen title uses ${camel}Title. Run: flutter gen-l10n',
+    );
+    exit(l10n.exitCode);
+  }
+  stdout.writeln(
+    'Translate ${camel}Title in lib/l10n if the new locale text should differ.',
+  );
   stdout.writeln(
     'Run: dart run build_runner build --delete-conflicting-outputs',
   );

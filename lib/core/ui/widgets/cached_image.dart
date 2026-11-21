@@ -12,6 +12,7 @@ class CachedImage extends StatelessWidget {
     this.width,
     this.fit,
     this.borderRadius,
+    this.specificBorderRadius,
   });
 
   final String imgUrl;
@@ -19,6 +20,7 @@ class CachedImage extends StatelessWidget {
   final double? width;
   final BoxFit? fit;
   final double? borderRadius;
+  final BorderRadiusGeometry? specificBorderRadius;
 
   static const Map<String, String> _headers = <String, String>{
     'User-Agent': 'EnterpriseMvvm/1.0',
@@ -29,7 +31,8 @@ class CachedImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius ?? 0),
+      borderRadius:
+          specificBorderRadius ?? BorderRadius.circular(borderRadius ?? 0),
       child: _isSvg ? _svg() : _raster(),
     );
   }

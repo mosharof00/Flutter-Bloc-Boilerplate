@@ -27,6 +27,10 @@ import 'package:enterprise_mvvm/features/auth/data/services/auth_api_service_imp
 import 'package:enterprise_mvvm/features/auth/data/services/auth_local_service.dart';
 import 'package:enterprise_mvvm/features/auth/data/services/fake_auth_api_service.dart';
 import 'package:enterprise_mvvm/features/auth/domain/repositories/auth_repository.dart';
+import 'package:enterprise_mvvm/features/products/data/services/fake_product_api_service.dart';
+import 'package:enterprise_mvvm/features/products/data/services/product_api_service.dart';
+import 'package:enterprise_mvvm/features/products/data/services/product_api_service_impl.dart';
+import 'package:enterprise_mvvm/features/products/domain/repositories/product_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,10 +75,13 @@ void main() {
       final session = getIt<SessionRepository>();
       expect(auth, same(session));
       expect(auth, isA<AuthRepositoryImpl>());
+      expect(getIt<ProductRepository>(), isA<ProductRepository>());
       if (flavor == AppFlavor.dev) {
         expect(getIt<AuthApiService>(), isA<FakeAuthApiService>());
+        expect(getIt<ProductApiService>(), isA<FakeProductApiService>());
       } else {
         expect(getIt<AuthApiService>(), isA<AuthApiServiceImpl>());
+        expect(getIt<ProductApiService>(), isA<ProductApiServiceImpl>());
       }
 
       container.openSessionScope(
