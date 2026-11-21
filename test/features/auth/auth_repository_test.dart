@@ -47,7 +47,7 @@ void main() {
     );
 
     final invalid = await repository.login(
-      email: 'member@demo.com',
+      email: 'user@demo.com',
       password: 'nope',
     );
     expect(
@@ -84,7 +84,7 @@ void main() {
   });
 
   test('switchRole rejects a role the user does not have', () async {
-    await repository.login(email: 'member@demo.com', password: '123456');
+    await repository.login(email: 'user@demo.com', password: '123456');
     final result = await repository.switchRole(AppRole.admin);
     expect(
       result.fold<Failure?>(
@@ -95,7 +95,7 @@ void main() {
     );
     expect(
       (repository.current as SessionAuthenticated).activeRole,
-      AppRole.member,
+      AppRole.user,
     );
   });
 
@@ -115,7 +115,7 @@ void main() {
   );
 
   test('sessionExpired clears the session', () async {
-    await repository.login(email: 'member@demo.com', password: '123456');
+    await repository.login(email: 'user@demo.com', password: '123456');
     final expired = repository.session.first;
     events.notifySessionExpired();
     await expired;
@@ -132,11 +132,11 @@ void main() {
 
   test('fake api simulates token expiry and refresh', () async {
     final api = FakeAuthApiService(flavor: AppFlavor.dev);
-    final login = await api.login(email: 'member@demo.com', password: '123456');
+    final login = await api.login(email: 'user@demo.com', password: '123456');
     expect(api.me(accessToken: login.accessToken), throwsA(isA<Exception>()));
     final refreshed = await api.refresh(refreshToken: login.refreshToken);
     final user = await api.me(accessToken: refreshed.accessToken);
-    expect(user.email, 'member@demo.com');
+    expect(user.email, 'user@demo.com');
   });
 
   test('fake api is rejected for prod', () {

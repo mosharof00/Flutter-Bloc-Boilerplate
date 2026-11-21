@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('dev login opens the member shell', (WidgetTester tester) async {
+  testWidgets('dev login opens the user shell', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     FlutterSecureStorage.setMockInitialValues(<String, String>{});
     final container = await buildContainer(
@@ -28,14 +28,14 @@ void main() {
     expect(find.byKey(const Key('login_submit')), findsOneWidget);
     await tester.enterText(
       find.byKey(const Key('login_email')),
-      'member@demo.com',
+      'user@demo.com',
     );
     await tester.enterText(find.byKey(const Key('login_password')), '123456');
     await tester.tap(find.byKey(const Key('login_submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Signed in as Member Demo'), findsOneWidget);
-    expect(find.text('Active role: Member'), findsOneWidget);
+    expect(find.text('Signed in as User Demo'), findsOneWidget);
+    expect(find.text('Active role: User'), findsOneWidget);
     expect(find.byKey(const Key('role_switch')), findsNothing);
     expect(container.dependencies.sessionRepository.current, isNotNull);
     await container.dependencies.themeCubit.close();

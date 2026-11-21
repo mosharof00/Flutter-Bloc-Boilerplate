@@ -13,12 +13,12 @@ void main() {
   const user = SessionUser(
     id: '1',
     displayName: 'Both Demo',
-    roles: <AppRole>{AppRole.member, AppRole.admin},
+    roles: <AppRole>{AppRole.user, AppRole.admin},
   );
 
   test('switchRole and logout follow the repositories', () async {
     final session = FakeSessionRepository(
-      const SessionAuthenticated(user: user, activeRole: AppRole.member),
+      const SessionAuthenticated(user: user, activeRole: AppRole.user),
     );
     final auth = FakeAuthRepository(
       loginResult: const Success<User>(
@@ -26,7 +26,7 @@ void main() {
           id: '1',
           email: 'both@demo.com',
           displayName: 'Both Demo',
-          roles: <AppRole>{AppRole.member, AppRole.admin},
+          roles: <AppRole>{AppRole.user, AppRole.admin},
         ),
       ),
     );

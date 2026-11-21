@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('redacts passwords, tokens, and authorization', () {
     final redacted = redactSensitive(<String, Object?>{
-      'email': 'member@demo.com',
+      'email': 'user@demo.com',
       'password': '123456',
       'nested': <String, Object?>{
         'accessToken': 'secret-access',
@@ -14,7 +14,7 @@ void main() {
     });
 
     expect(redacted, <String, Object?>{
-      'email': 'member@demo.com',
+      'email': 'user@demo.com',
       'password': '***',
       'nested': <String, Object?>{
         'accessToken': '***',

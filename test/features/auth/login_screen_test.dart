@@ -36,7 +36,7 @@ void main() {
 
     await tester.enterText(
       find.byKey(const Key('login_email')),
-      'member@demo.com',
+      'user@demo.com',
     );
     await tester.enterText(find.byKey(const Key('login_password')), 'nope');
     await tester.tap(find.byKey(const Key('login_submit')));

@@ -48,11 +48,11 @@ final class FakeAuthApiService implements AuthApiService {
   static const password = '123456';
 
   static const Map<String, _DemoAccount> _accounts = <String, _DemoAccount>{
-    'member@demo.com': _DemoAccount(
-      id: 'user-member',
-      email: 'member@demo.com',
-      displayName: 'Member Demo',
-      roles: <String>['member'],
+    'user@demo.com': _DemoAccount(
+      id: 'user-user',
+      email: 'user@demo.com',
+      displayName: 'User Demo',
+      roles: <String>['user'],
     ),
     'admin@demo.com': _DemoAccount(
       id: 'user-admin',
@@ -64,13 +64,13 @@ final class FakeAuthApiService implements AuthApiService {
       id: 'user-both',
       email: 'both@demo.com',
       displayName: 'Both Demo',
-      roles: <String>['member', 'admin'],
+      roles: <String>['user', 'admin'],
     ),
     'limited@demo.com': _DemoAccount(
       id: 'user-limited',
       email: 'limited@demo.com',
       displayName: 'Limited Demo',
-      roles: <String>['member'],
+      roles: <String>['user'],
       permissions: <String>[],
     ),
   };

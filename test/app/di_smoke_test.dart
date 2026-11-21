@@ -86,17 +86,17 @@ void main() {
 
       container.openSessionScope(
         const SessionAuthenticated(
-          activeRole: AppRole.member,
+          activeRole: AppRole.user,
           user: SessionUser(
             id: 'user-1',
             displayName: 'Ada',
-            roles: <AppRole>{AppRole.member, AppRole.admin},
+            roles: <AppRole>{AppRole.user, AppRole.admin},
           ),
         ),
       );
       expect(getIt<SessionContext>().userId, 'user-1');
-      await container.openRoleScope(AppRole.member);
-      expect(getIt<RoleContext>().role, AppRole.member);
+      await container.openRoleScope(AppRole.user);
+      expect(getIt<RoleContext>().role, AppRole.user);
       await container.openRoleScope(AppRole.admin);
       expect(getIt<RoleContext>().role, AppRole.admin);
       await container.closeSessionScope();

@@ -5,7 +5,7 @@ import 'package:enterprise_mvvm/core/access/permission.dart';
 abstract final class RolePermissions {
   static const Map<AppRole, Set<Permission>> grants =
       <AppRole, Set<Permission>>{
-        AppRole.member: <Permission>{Permission.viewMemberHome},
+        AppRole.user: <Permission>{Permission.viewUserHome},
         AppRole.admin: <Permission>{Permission.viewAdminHome},
         // GENERATOR: role-permissions
       };

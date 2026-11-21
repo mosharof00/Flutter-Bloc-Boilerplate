@@ -1,5 +1,5 @@
 enum Permission {
-  viewMemberHome,
+  viewUserHome,
   viewAdminHome,
   // GENERATOR: permissions
 }

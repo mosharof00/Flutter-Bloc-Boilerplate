@@ -4,7 +4,7 @@ An enterprise Flutter starter for apps that sign in, land on a main shell, and l
 
 The Dart package is `enterprise_mvvm`. The folder you clone is `flutter_bloc_boilerplate`. Flutter **3.47.7** / Dart **3.13.5** (`sdk: ^3.13.5`).
 
-Most apps that start from this repo need one role. That path is the default: sign in, open the member shell, and use Home and Products. Admin is already wired as the second role, so you can see a role switch before you delete it or add your own.
+Most apps that start from this repo need one role. That path is the default: sign in, open the user shell, and use Home and Products. Admin is already wired as the second role, so you can see a role switch before you delete it or add your own.
 
 ```mermaid
 flowchart LR
@@ -32,20 +32,20 @@ flutter run -t lib/main_dev.dart --dart-define-from-file=config/dev.json --flavo
 
 Dev uses in-memory auth and an in-memory product catalog, so it does not need a backend. Staging and prod register the real Dio services against the base URL in `config/`. Point that URL at `https://dummyjson.com` to exercise the live product list (`GET /products?limit&skip`).
 
-Sign in as `member@demo.com` / `123456`.
+Sign in as `user@demo.com` / `123456`.
 
 | Email | What you get |
 | --- | --- |
-| `member@demo.com` | Member shell. This is the single-role app. |
+| `user@demo.com` | User shell. This is the single-role app. |
 | `admin@demo.com` | Admin shell. |
 | `both@demo.com` | Both roles, with a switch on the home tab. |
-| `limited@demo.com` | Member, with an empty server permission set. |
+| `limited@demo.com` | User, with an empty server permission set. |
 
 The fake API's first access token is already expired. `me` rejects it and `refresh` rotates it, so token refresh runs without a server.
 
 ### After sign-in
 
-The member shell has two tabs, drawn with `google_nav_bar` and the SVGs in `assets/icons`:
+The user shell has two tabs, drawn with `google_nav_bar` and the SVGs in `assets/icons`:
 
 - **Home** shows the signed-in user, the theme toggle, the language toggle, and logout. A role switch appears only when the account has two roles.
 - **Products** is the fetch example. The first page loads ten items, the rows stay on screen, and **Load more** asks for the next page. Pull to refresh. Dev reads the in-memory catalog. Staging and prod call Dio.
@@ -68,7 +68,7 @@ Clone the repo, then rename it before you add product code.
 
 `config/*.json` holds the flavor, the base URL, and the HTTP log switch. Secrets do not belong there, in source, or in `--dart-define` files that are committed.
 
-A single-role app can delete `lib/app/roles/admin` after you remove it from `lib/app/role_modules.dart`, `AppRole`, `Permission`, and `RolePermissions`. Leave the member shell. It is the navigation host.
+A single-role app can delete `lib/app/roles/admin` after you remove it from `lib/app/role_modules.dart`, `AppRole`, `Permission`, and `RolePermissions`. Leave the user shell. It is the navigation host.
 
 ## Stack
 
@@ -168,7 +168,7 @@ dart run tool/new_role.dart student
 
 That adds the enum value, the permission, the role-to-permission entry, the shell, and one line in `lib/app/role_modules.dart`. Domain and data stay shared. The router and the session repository do not change.
 
-Keep a role in this app when it is the same product with a different shell: member and admin, student and teacher, buyer and seller. One binary, one release, screens composed from the same features.
+Keep a role in this app when it is the same product with a different shell: user and admin, student and teacher, buyer and seller. One binary, one release, screens composed from the same features.
 
 Split a role into its own app when the store listing, the release cycle, or the screen set diverges. One router should not try to be a rider app, a customer app, and a restaurant app. The new app depends on the same `core`.
 
@@ -176,7 +176,7 @@ Move `lib/core` to `packages/core` when that second app appears. Nothing in `cor
 
 ```yaml
 workspace:
-  - apps/member
+  - apps/user
   - apps/rider
   - packages/core
 ```

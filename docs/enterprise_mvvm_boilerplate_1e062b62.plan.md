@@ -15,7 +15,7 @@ todos:
     content: "Auth interceptor, single-flight token refresh with retry, redacted logging, AuthEvents stream so core never depends on a feature"
     status: pending
   - id: app-shell
-    content: "app/: bootstrap, get_it composition root with scopes, go_router with guards, role_modules registry, role shells (member, admin)"
+    content: "app/: bootstrap, get_it composition root with scopes, go_router with guards, role_modules registry, role shells (user, admin)"
     status: pending
   - id: auth-feature
     content: "Auth slice (data/domain/ui) with repository-owned session, persisted active role, LoginViewModel, SessionViewModel (thin), no mandatory use cases"
@@ -91,7 +91,7 @@ The same feature slice is what large products use. An orders, catalog, cart, tra
 
 Two role situations stay separate:
 
-- **Same app, different shells** (member/admin, student/teacher, buyer/seller). One binary. The session carries roles. The router picks a shell. This is what the boilerplate includes.
+- **Same app, different shells** (user/admin, student/teacher, buyer/seller). One binary. The session carries roles. The router picks a shell. This is what the boilerplate includes.
 - **Different products** (rider vs customer vs restaurant). When the stores, release cycles, and screens diverge, split into separate apps that share `core`. That split is documented, not built. One router should not try to be Uber.
 
 Roles are not checked with scattered `if (role == admin)` calls. A user has a set of roles and one active role. Screens and routes ask for a permission.
@@ -128,7 +128,7 @@ flowchart TD
   login[Login] --> repo[AuthRepositoryImpl / SessionRepository]
   repo -->|"Stream of Session"| redirect[Router redirect]
   repo -->|"Stream of Session"| svm[SessionViewModel]
-  redirect --> memberShell[Member shell]
+  redirect --> userShell[User shell]
   redirect --> adminShell[Admin shell]
   repo --> policy[AccessPolicy]
   policy --> routes[Route and button checks]
@@ -164,7 +164,7 @@ flutter_block_boilerplate/
       di/             composition root: get_it, scopes, registerX()
       router/         go_router, guards, AppRoutes
       roles/
-        member/       member_role_module.dart, shell, home screen + view model
+        user/         user_role_module.dart, shell, home screen + view model
         admin/        admin_role_module.dart, shell, home screen + view model
     core/
       config/         AppFlavor, AppConfig
@@ -214,11 +214,11 @@ flutter_block_boilerplate/
 
 ## Auth slice (the template)
 
-- **Access** (`core/access`): `AppRole.member` and `AppRole.admin`. `Permission` values such as `viewMemberHome` and `viewAdminHome`. `RolePermissions` is the default map from role to permissions. `AccessPolicy.can(session, permission)` is what widgets and the router call.
+- **Access** (`core/access`): `AppRole.user` and `AppRole.admin`. `Permission` values such as `viewUserHome` and `viewAdminHome`. `RolePermissions` is the default map from role to permissions. `AccessPolicy.can(session, permission)` is what widgets and the router call.
 - **Domain**: `User` model and the abstract `AuthRepository` (`login`, `logout`, `restore`). No mandatory use cases: `LoginViewModel` calls the repository directly. Add a use case only when a flow merges repositories, is complex, or is reused.
-- **Data**: `AuthApiService` (`POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`) and `AuthLocalService` (tokens, persisted active role). `UserDto` serializes roles and maps to `User` and `SessionUser`. `AuthRepositoryImpl` implements `AuthRepository` and `SessionRepository`, restores the session on start, rejects `switchRole` for a role the user does not have, persists the chosen role, and expires the session on `AuthEvents.sessionExpired`. Dev binds `FakeAuthApiService`. Fake accounts, password `123456`: `member@demo.com` (member), `admin@demo.com` (admin), `both@demo.com` (both). The fake service also simulates token expiry so refresh can be exercised.
+- **Data**: `AuthApiService` (`POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`) and `AuthLocalService` (tokens, persisted active role). `UserDto` serializes roles and maps to `User` and `SessionUser`. `AuthRepositoryImpl` implements `AuthRepository` and `SessionRepository`, restores the session on start, rejects `switchRole` for a role the user does not have, persists the chosen role, and expires the session on `AuthEvents.sessionExpired`. Dev binds `FakeAuthApiService`. Fake accounts, password `123456`: `user@demo.com` (user), `admin@demo.com` (admin), `both@demo.com` (both). The fake service also simulates token expiry so refresh can be exercised.
 - **UI**: `LoginViewModel` states `initial | loading | success | failure`. `SessionViewModel` is a thin wrapper that exposes the current session, `switchRole`, and `logout` to shells.
-- **Flow**: splash while the session is unknown. Unauthenticated goes to login, remembering the intended location. Authenticated goes to the active role shell (`/member` or `/admin`), or to the remembered location if the active role can access it. A route the active role cannot access redirects to that shell. Logout clears secure storage and the session scope. A user with both roles gets a switch control on both shells.
+- **Flow**: splash while the session is unknown. Unauthenticated goes to login, remembering the intended location. Authenticated goes to the active role shell (`/user` or `/admin`), or to the remembered location if the active role can access it. A route the active role cannot access redirects to that shell. Logout clears secure storage and the session scope. A user with both roles gets a switch control on both shells.
 
 Shell screens stay thin: current user, active role, theme toggle, language toggle, logout, and the switch when more than one role exists.
 

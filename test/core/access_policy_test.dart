@@ -12,7 +12,7 @@ void main() {
 
   SessionAuthenticated session({
     required AppRole activeRole,
-    Set<AppRole> roles = const <AppRole>{AppRole.member, AppRole.admin},
+    Set<AppRole> roles = const <AppRole>{AppRole.user, AppRole.admin},
     Set<Permission>? permissions,
   }) {
     return SessionAuthenticated(
@@ -27,37 +27,37 @@ void main() {
   }
 
   test('role defaults allow only the active role home', () {
-    final member = session(
-      activeRole: AppRole.member,
-      roles: const <AppRole>{AppRole.member},
+    final userSession = session(
+      activeRole: AppRole.user,
+      roles: const <AppRole>{AppRole.user},
     );
-    expect(policy.can(member, Permission.viewMemberHome), isTrue);
-    expect(policy.can(member, Permission.viewAdminHome), isFalse);
+    expect(policy.can(userSession, Permission.viewUserHome), isTrue);
+    expect(policy.can(userSession, Permission.viewAdminHome), isFalse);
     expect(
-      policy.can(const SessionUnauthenticated(), Permission.viewMemberHome),
+      policy.can(const SessionUnauthenticated(), Permission.viewUserHome),
       isFalse,
     );
   });
 
   test('server permissions narrow the active role and cannot widen it', () {
     final revoked = session(
-      activeRole: AppRole.member,
+      activeRole: AppRole.user,
       permissions: const <Permission>{},
     );
     final kept = session(
-      activeRole: AppRole.member,
-      permissions: const <Permission>{Permission.viewMemberHome},
+      activeRole: AppRole.user,
+      permissions: const <Permission>{Permission.viewUserHome},
     );
     final widened = session(
-      activeRole: AppRole.member,
+      activeRole: AppRole.user,
       permissions: const <Permission>{
-        Permission.viewMemberHome,
+        Permission.viewUserHome,
         Permission.viewAdminHome,
       },
     );
 
-    expect(policy.can(revoked, Permission.viewMemberHome), isFalse);
-    expect(policy.can(kept, Permission.viewMemberHome), isTrue);
+    expect(policy.can(revoked, Permission.viewUserHome), isFalse);
+    expect(policy.can(kept, Permission.viewUserHome), isTrue);
     expect(policy.can(widened, Permission.viewAdminHome), isFalse);
   });
 

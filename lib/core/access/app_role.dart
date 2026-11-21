@@ -1,5 +1,5 @@
 enum AppRole {
-  member,
+  user,
   admin,
   // GENERATOR: roles
 }

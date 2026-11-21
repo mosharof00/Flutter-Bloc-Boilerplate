@@ -1,5 +1,5 @@
 import 'package:enterprise_mvvm/app/di/injection.dart';
-import 'package:enterprise_mvvm/app/roles/member/member_shell.dart';
+import 'package:enterprise_mvvm/app/roles/user/user_shell.dart';
 import 'package:enterprise_mvvm/core/config/app_config.dart';
 import 'package:enterprise_mvvm/core/config/app_flavor.dart';
 import 'package:enterprise_mvvm/core/session/session.dart';
@@ -35,13 +35,13 @@ void main() {
     await tester.pumpWidget(
       buildTestApp(
         dependencies: container.dependencies,
-        child: const MemberShell(),
+        child: const UserShell(),
       ),
     );
     await tester.pump();
 
     expect(find.text('Signed in as Both Demo'), findsOneWidget);
-    expect(find.text('Active role: Member'), findsOneWidget);
+    expect(find.text('Active role: User'), findsOneWidget);
     await tester.tap(find.byKey(const Key('role_switch')));
     await tester.pump();
     await tester.pump();
@@ -66,23 +66,23 @@ void main() {
     await container.dependencies.localeCubit.close();
   });
 
-  testWidgets('a member does not see the role switch', (
+  testWidgets('a user does not see the role switch', (
     WidgetTester tester,
   ) async {
     final container = await buildContainer(config);
     await container.dependencies.authRepository.login(
-      email: 'member@demo.com',
+      email: 'user@demo.com',
       password: '123456',
     );
     await tester.pumpWidget(
       buildTestApp(
         dependencies: container.dependencies,
-        child: const MemberShell(),
+        child: const UserShell(),
       ),
     );
     await tester.pump();
     expect(find.byKey(const Key('role_switch')), findsNothing);
-    expect(find.text('Signed in as Member Demo'), findsOneWidget);
+    expect(find.text('Signed in as User Demo'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav_products')));
     await tester.pump();

@@ -18,9 +18,9 @@ class _MockAuthRepository extends Mock implements AuthRepository {}
 void main() {
   const user = User(
     id: '1',
-    email: 'member@demo.com',
-    displayName: 'Member Demo',
-    roles: <AppRole>{AppRole.member},
+    email: 'user@demo.com',
+    displayName: 'User Demo',
+    roles: <AppRole>{AppRole.user},
   );
 
   blocTest<LoginViewModel, LoginState>(
@@ -29,7 +29,7 @@ void main() {
       FakeAuthRepository(loginResult: const Success<User>(user)),
     ),
     act: (LoginViewModel viewModel) =>
-        viewModel.submit(email: 'member@demo.com', password: '123456'),
+        viewModel.submit(email: 'user@demo.com', password: '123456'),
     expect: () => const <LoginState>[LoginLoading(), LoginSuccess()],
   );
 
@@ -37,7 +37,7 @@ void main() {
     'emits the repository failure',
     build: () => LoginViewModel(FakeAuthRepository()),
     act: (LoginViewModel viewModel) =>
-        viewModel.submit(email: 'member@demo.com', password: 'nope'),
+        viewModel.submit(email: 'user@demo.com', password: 'nope'),
     expect: () => const <LoginState>[
       LoginLoading(),
       LoginFailure(InvalidCredentialsFailure()),

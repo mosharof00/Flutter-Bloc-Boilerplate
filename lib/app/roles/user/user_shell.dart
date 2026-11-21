@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:enterprise_mvvm/app/app_scope.dart';
-import 'package:enterprise_mvvm/app/roles/member/member_home_screen.dart';
-import 'package:enterprise_mvvm/app/roles/member/member_home_view_model.dart';
+import 'package:enterprise_mvvm/app/roles/user/user_home_screen.dart';
+import 'package:enterprise_mvvm/app/roles/user/user_home_view_model.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
 import 'package:enterprise_mvvm/core/ui/widgets/app_svg_icon.dart';
 import 'package:enterprise_mvvm/features/products/ui/products/products_screen.dart';
@@ -14,15 +14,15 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 
 /// The default shell. One role, two places: the signed-in home and the
 /// product catalog. A second role is a separate shell added with new_role.
-class MemberShell extends StatefulWidget {
-  const MemberShell({super.key});
+class UserShell extends StatefulWidget {
+  const UserShell({super.key});
 
   @override
-  State<MemberShell> createState() => _MemberShellState();
+  State<UserShell> createState() => _UserShellState();
 }
 
-class _MemberShellState extends State<MemberShell> {
-  MemberHomeViewModel? _session;
+class _UserShellState extends State<UserShell> {
+  UserHomeViewModel? _session;
   ProductsViewModel? _products;
   var _index = 0;
   var _productsReady = false;
@@ -31,7 +31,7 @@ class _MemberShellState extends State<MemberShell> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final dependencies = AppScope.of(context);
-    _session ??= MemberHomeViewModel(
+    _session ??= UserHomeViewModel(
       sessionRepository: dependencies.sessionRepository,
       authRepository: dependencies.authRepository,
     );
@@ -72,13 +72,13 @@ class _MemberShellState extends State<MemberShell> {
       body: IndexedStack(
         index: _index,
         children: <Widget>[
-          MemberHomeScreen(viewModel: session),
+          UserHomeScreen(viewModel: session),
           _productsReady
               ? ProductsScreen(viewModel: products)
               : const SizedBox.shrink(),
         ],
       ),
-      bottomNavigationBar: _MemberNav(
+      bottomNavigationBar: _UserNav(
         index: _index,
         homeLabel: l10n.homeTitle,
         productsLabel: l10n.productsTitle,
@@ -88,8 +88,8 @@ class _MemberShellState extends State<MemberShell> {
   }
 }
 
-class _MemberNav extends StatelessWidget {
-  const _MemberNav({
+class _UserNav extends StatelessWidget {
+  const _UserNav({
     required this.index,
     required this.homeLabel,
     required this.productsLabel,

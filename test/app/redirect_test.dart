@@ -10,12 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const policy = AccessPolicy();
   final modules = buildRoleModules();
-  const member = SessionAuthenticated(
-    activeRole: AppRole.member,
+  const userSession = SessionAuthenticated(
+    activeRole: AppRole.user,
     user: SessionUser(
       id: '1',
-      displayName: 'Member Demo',
-      roles: <AppRole>{AppRole.member},
+      displayName: 'User Demo',
+      roles: <AppRole>{AppRole.user},
     ),
   );
   const both = SessionAuthenticated(
@@ -23,7 +23,7 @@ void main() {
     user: SessionUser(
       id: '2',
       displayName: 'Both Demo',
-      roles: <AppRole>{AppRole.member, AppRole.admin},
+      roles: <AppRole>{AppRole.user, AppRole.admin},
     ),
   );
 
@@ -53,10 +53,10 @@ void main() {
     expect(redirect(const SessionUnauthenticated(), AppRoutes.login), isNull);
   });
 
-  test('a member cannot open the admin shell', () {
-    expect(redirect(member, AppRoutes.adminHome), AppRoutes.memberHome);
-    expect(redirect(member, AppRoutes.memberHome), isNull);
-    expect(redirect(member, AppRoutes.login), AppRoutes.memberHome);
+  test('a user cannot open the admin shell', () {
+    expect(redirect(userSession, AppRoutes.adminHome), AppRoutes.userHome);
+    expect(redirect(userSession, AppRoutes.userHome), isNull);
+    expect(redirect(userSession, AppRoutes.login), AppRoutes.userHome);
   });
 
   test('login returns to a location the active role can access', () {
@@ -69,10 +69,10 @@ void main() {
     );
     expect(
       redirect(
-        member,
+        userSession,
         '${AppRoutes.login}?from=${Uri.encodeQueryComponent(AppRoutes.adminHome)}',
       ),
-      AppRoutes.memberHome,
+      AppRoutes.userHome,
     );
   });
 }
