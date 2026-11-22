@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:enterprise_mvvm/app/app_scope.dart';
+import 'package:enterprise_mvvm/app/roles/user/profile_screen.dart';
 import 'package:enterprise_mvvm/app/roles/user/user_home_screen.dart';
 import 'package:enterprise_mvvm/app/roles/user/user_home_view_model.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
@@ -12,8 +13,7 @@ import 'package:enterprise_mvvm/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
-/// The default shell. One role, two places: the signed-in home and the
-/// product catalog. A second role is a separate shell added with new_role.
+/// The default shell. Home, the product catalog, and profile.
 class UserShell extends StatefulWidget {
   const UserShell({super.key});
 
@@ -26,6 +26,7 @@ class _UserShellState extends State<UserShell> {
   ProductsViewModel? _products;
   var _index = 0;
   var _productsReady = false;
+  var _profileReady = false;
 
   @override
   void didChangeDependencies() {
@@ -57,6 +58,9 @@ class _UserShellState extends State<UserShell> {
       if (index == 1) {
         _productsReady = true;
       }
+      if (index == 2) {
+        _profileReady = true;
+      }
     });
   }
 
@@ -76,12 +80,16 @@ class _UserShellState extends State<UserShell> {
           _productsReady
               ? ProductsScreen(viewModel: products)
               : const SizedBox.shrink(),
+          _profileReady
+              ? ProfileScreen(viewModel: session)
+              : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: _UserNav(
         index: _index,
         homeLabel: l10n.homeTitle,
         productsLabel: l10n.productsTitle,
+        profileLabel: l10n.profileTitle,
         onSelected: _select,
       ),
     );
@@ -93,12 +101,14 @@ class _UserNav extends StatelessWidget {
     required this.index,
     required this.homeLabel,
     required this.productsLabel,
+    required this.profileLabel,
     required this.onSelected,
   });
 
   final int index;
   final String homeLabel;
   final String productsLabel;
+  final String profileLabel;
   final ValueChanged<int> onSelected;
 
   @override
@@ -116,6 +126,12 @@ class _UserNav extends StatelessWidget {
         fill: Assets.icons.blockFillIcon,
         label: productsLabel,
         key: const Key('nav_products'),
+      ),
+      (
+        outline: Assets.icons.profileIcon,
+        fill: Assets.icons.profileFillIcon,
+        label: profileLabel,
+        key: const Key('nav_profile'),
       ),
     ];
     return DecoratedBox(

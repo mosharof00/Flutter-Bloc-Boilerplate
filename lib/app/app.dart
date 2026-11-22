@@ -68,6 +68,7 @@ class _EnterpriseAppState extends State<EnterpriseApp> {
               builder: (BuildContext context, Locale locale) {
                 return MaterialApp.router(
                   title: 'Enterprise MVVM',
+                  debugShowCheckedModeBanner: false,
                   theme: AppTheme.light(),
                   darkTheme: AppTheme.dark(),
                   themeMode: themeMode,

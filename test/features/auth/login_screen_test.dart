@@ -11,7 +11,6 @@ import 'package:enterprise_mvvm/features/auth/ui/login/login_screen.dart';
 import 'package:enterprise_mvvm/features/auth/ui/login/login_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../fakes/fake_auth_repository.dart';
 import '../../fakes/fake_product_repository.dart';
@@ -24,8 +23,7 @@ void main() {
   testWidgets('shows a failure when the password is wrong', (
     WidgetTester tester,
   ) async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
-    final preferences = PreferencesStore(await SharedPreferences.getInstance());
+    final preferences = PreferencesStore.memory();
     final viewModel = LoginViewModel(FakeAuthRepository());
     await tester.pumpWidget(
       buildTestApp(

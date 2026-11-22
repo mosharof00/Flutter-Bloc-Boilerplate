@@ -51,6 +51,7 @@
   "splashLoading": "Loading",
   "homeTitle": "Home",
   "productsTitle": "Products",
+  "profileTitle": "Profile",
   "loadMore": "Load more",
   "emailHint": "name@company.com",
   "passwordHint": "Enter password",

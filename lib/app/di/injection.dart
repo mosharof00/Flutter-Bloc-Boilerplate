@@ -25,10 +25,12 @@ import 'package:enterprise_mvvm/core/theme/theme_cubit.dart';
 import 'package:enterprise_mvvm/features/auth/domain/repositories/auth_repository.dart';
 import 'package:enterprise_mvvm/features/products/domain/repositories/product_repository.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-Future<AppContainer> buildContainer(AppConfig config) async {
-  final preferences = PreferencesStore(await SharedPreferences.getInstance());
+Future<AppContainer> buildContainer(
+  AppConfig config, {
+  PreferencesStore? preferencesStore,
+}) async {
+  final preferences = preferencesStore ?? await PreferencesStore.open();
   final secure = FlutterSecureStore();
   final tokenStore = TokenStore(secure);
   final AppLogger logger = config.flavor == AppFlavor.prod

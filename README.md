@@ -4,7 +4,7 @@ An enterprise Flutter starter for apps that sign in, land on a main shell, and l
 
 The Dart package is `enterprise_mvvm`. The folder you clone is `flutter_bloc_boilerplate`. Flutter **3.47.7** / Dart **3.13.5** (`sdk: ^3.13.5`).
 
-Most apps that start from this repo need one role. That path is the default: sign in, open the user shell, and use Home and Products. Admin is already wired as the second role, so you can see a role switch before you delete it or add your own.
+Most apps that start from this repo need one role. That path is the default: sign in, open the user shell, and use Home, Products, and Profile. Admin is already wired as the second role, so you can see a role switch before you delete it or add your own.
 
 ```mermaid
 flowchart LR
@@ -19,18 +19,109 @@ flowchart LR
   ViewModel --> View
 ```
 
+## Project structure
+
+```text
+flutter_bloc_boilerplate/
+├── .github/workflows/          # CI: format, analyze, test
+├── .vscode/launch.json         # Cursor / VS Code flavor launch configs
+├── android/                    # productFlavors: dev, staging, prod
+├── ios/                        # schemes + Debug|Release|Profile-flavor configs
+├── assets/
+│   ├── fonts/                  # Inter
+│   ├── icons/                  # Home, products, profile, back arrow SVGs
+│   └── images/                 # Placeholder and empty-state images
+├── config/
+│   ├── dev.json                # FLAVOR, API_BASE_URL, ENABLE_HTTP_LOGS
+│   ├── staging.json
+│   └── prod.json               # No secrets here
+├── lib/
+│   ├── main.dart               # Default entry (dev fallback)
+│   ├── main_dev.dart
+│   ├── main_staging.dart
+│   ├── main_prod.dart
+│   ├── app/                    # Bootstrap, DI, router, splash, role shells
+│   │   ├── di/                 # get_it composition root (only place get_it is imported)
+│   │   ├── roles/
+│   │   │   ├── user/           # Default single-role shell (Home / Products / Profile)
+│   │   │   └── admin/          # Second-role example
+│   │   └── router/
+│   ├── core/                   # Shared, feature-agnostic code
+│   │   ├── access/             # AppRole, Permission, AccessPolicy
+│   │   ├── config/             # AppConfig, AppFlavor
+│   │   ├── error/              # Failures + l10n message helpers
+│   │   ├── network/            # Dio, interceptors, DummyJSON catalog endpoint
+│   │   ├── result/             # Result / Success / Err
+│   │   ├── session/            # Session contracts (repository-owned)
+│   │   ├── storage/            # PreferencesStore (Hive), secure token store
+│   │   ├── theme/              # Tokens, ThemeCubit, LocaleCubit
+│   │   ├── services/           # Logger, connectivity, url launcher, …
+│   │   └── ui/
+│   │       ├── view_model/     # BaseViewModel, ViewState, pagination
+│   │       └── widgets/        # Shared design-system widgets
+│   ├── features/
+│   │   ├── auth/               # data / domain / ui (login + session VM)
+│   │   └── products/           # data / domain / ui (paged DummyJSON catalog)
+│   ├── l10n/                   # app_en.arb, app_bn.arb
+│   └── gen/                    # flutter_gen output (gitignored)
+├── test/
+│   ├── architecture/           # Layer import rules
+│   ├── app/                    # Shell, redirect, DI smoke, login flow
+│   ├── core/
+│   ├── features/
+│   ├── fakes/
+│   └── support/
+├── tool/
+│   ├── new_feature.dart
+│   └── new_role.dart
+├── analysis_options.yaml
+├── l10n.yaml
+├── pubspec.yaml
+└── README.md
+```
+
+A generated feature always looks like this:
+
+```text
+lib/features/orders/
+├── domain/
+│   ├── models/orders.dart
+│   ├── repositories/orders_repository.dart
+│   └── use_cases/                 # only with --use-case
+├── data/
+│   ├── dto/
+│   ├── services/
+│   └── repositories/orders_repository_impl.dart
+└── ui/orders/
+    ├── orders_screen.dart
+    └── orders_view_model.dart
+```
+
 ## Start
 
 Generated code is not committed. Create it once, then run a flavor.
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
-flutter run -t lib/main_dev.dart --dart-define-from-file=config/dev.json --flavor dev
 ```
 
-`lib/main.dart` is the same dev entrypoint. Pass `--flavor` as well. Android and iOS use a separate application id for each flavor, so a flavorless install is a different app from the one the launch configs start. VS Code and Cursor launch configs live in `.vscode/launch.json` (`dev`, `staging`, `prod`).
+`--flavor` alone only picks the native application id. Always pass the matching config file so Dart gets `FLAVOR`, `API_BASE_URL`, and `ENABLE_HTTP_LOGS`. Without that file, a prod install can still boot as **dev**.
 
-Dev uses in-memory auth and an in-memory product catalog, so it does not need a backend. Staging and prod register the real Dio services against the base URL in `config/`. Point that URL at `https://dummyjson.com` to exercise the live product list (`GET /products?limit&skip`).
+```bash
+# Run
+flutter run --flavor dev --dart-define-from-file=config/dev.json
+flutter run --flavor staging --dart-define-from-file=config/staging.json
+flutter run --flavor prod --dart-define-from-file=config/prod.json
+
+# Android APK
+flutter build apk --flavor dev --debug --dart-define-from-file=config/dev.json
+flutter build apk --flavor staging --release --dart-define-from-file=config/staging.json
+flutter build apk --flavor prod --release --dart-define-from-file=config/prod.json
+```
+
+`lib/main.dart` is fine as the default entrypoint: the JSON sets `FLAVOR` and overrides the fallback. Optional dedicated entrypoints (`lib/main_dev.dart`, `lib/main_staging.dart`, `lib/main_prod.dart`) remain if you prefer `-t`. VS Code and Cursor launch configs live in `.vscode/launch.json`.
+
+Dev uses in-memory auth, so login does not need your backend. Products always load from the public DummyJSON catalog at `https://dummyjson.com` (`GET /products?limit&skip`) on a separate Dio client with no auth interceptors. Staging and prod register the real auth Dio services against the base URL in `config/`.
 
 Sign in as `user@demo.com` / `123456`.
 
@@ -45,12 +136,13 @@ The fake API's first access token is already expired. `me` rejects it and `refre
 
 ### After sign-in
 
-The user shell has two tabs, drawn with `google_nav_bar` and the SVGs in `assets/icons`:
+The user shell has three tabs, drawn with `google_nav_bar` and the SVGs in `assets/icons`:
 
 - **Home** shows the signed-in user, the theme toggle, the language toggle, and logout. A role switch appears only when the account has two roles.
-- **Products** is the fetch example. The first page loads ten items, the rows stay on screen, and **Load more** asks for the next page. Pull to refresh. Dev reads the in-memory catalog. Staging and prod call Dio.
+- **Products** is the fetch example. It loads ten items from DummyJSON, keeps the rows, and loads the next page automatically when you scroll near the bottom. Pull to refresh.
+- **Profile** shows the account name, the active role, theme and language toggles, and logout.
 
-The products tab is created the first time you select it, so the home screen does not sit on a running shimmer.
+The Products and Profile tabs are created the first time you select them, so Home does not sit on a running shimmer or a second session screen.
 
 ## Make it your app
 
@@ -79,13 +171,13 @@ A single-role app can delete `lib/app/roles/admin` after you remove it from `lib
 | Routing | `go_router`, with the session stream as `refreshListenable`. |
 | HTTP | `dio`, one client for API calls and a second client for refresh. |
 | Models | `equatable` and `json_serializable` where a DTO is generated. The product example parses JSON by hand so the fetch cycle stays visible. |
-| Storage | `flutter_secure_storage` for tokens, `shared_preferences` for theme, locale, and the active role. |
+| Storage | `flutter_secure_storage` for tokens, Hive via `PreferencesStore` for theme, locale, and the active role. |
 | Images and icons | `cached_network_image`, `flutter_svg`, `flutter_gen`. |
 | Navigation chrome | `google_nav_bar`. |
 | Links | `url_launcher`. |
 | Copy | `flutter_localizations` + `intl`. English and Bengali. |
 
-## Layout
+## Layout roles
 
 | Path | Responsibility |
 | --- | --- |
@@ -94,24 +186,10 @@ A single-role app can delete `lib/app/roles/admin` after you remove it from `lib
 | `lib/features/auth` | Login, session restoration, token storage |
 | `lib/features/products` | The paged catalog |
 | `lib/l10n` | `app_en.arb` and `app_bn.arb` |
-| `assets/icons` | Home, products, profile, and back-arrow SVGs |
-| `config` | Flavor defines. No secrets. |
-| `tool` | `new_feature.dart` and `new_role.dart` |
+| `assets/` | Icons, images, fonts |
+| `config/` | Flavor defines. No secrets. |
+| `tool/` | `new_feature.dart` and `new_role.dart` |
 | `test/architecture` | The layer rules |
-
-A feature is split the same way every time:
-
-```text
-lib/features/orders/
-  domain/models/orders.dart
-  domain/repositories/orders_repository.dart
-  domain/use_cases/            # only when you pass --use-case
-  data/dto/
-  data/services/
-  data/repositories/orders_repository_impl.dart
-  ui/orders/orders_screen.dart
-  ui/orders/orders_view_model.dart
-```
 
 A view renders state and forwards actions. A view model is a Cubit with methods, not events. A repository owns one kind of data: caching, retry, refresh, and mapping into `Result<T>` or a `Stream`. A service is a stateless wrapper around one source. A use case exists only when logic merges repositories, is complex, or is reused. View models otherwise call repositories directly.
 
@@ -137,7 +215,7 @@ The session is app-wide data, so it lives in the repository, not in a Cubit. `Au
 
 A route the active role cannot open redirects to that role's home. Any other authenticated path is allowed.
 
-`SessionViewModel` is a thin Cubit over the same stream. The home tab uses it for the role switch, theme, locale, and logout. It is not registered in `get_it`. The shell creates it and closes it.
+`SessionViewModel` is a thin Cubit over the same stream. The home and profile tabs use it for the role switch, theme, locale, and logout. It is not registered in `get_it`. The shell creates it and closes it.
 
 Permissions are not `if (role == admin)` checks. `AccessPolicy.can` uses the active role as the ceiling (`RolePermissions`). A null permission list means the role defaults. A non-null list, including an empty one, is intersected with those defaults. The server cannot grant a permission the active role does not already have. The server still has to enforce access on every request.
 
@@ -183,12 +261,11 @@ workspace:
 
 ## Design system
 
-Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets read `ColorScheme`, `AppSpacing`, `AppRadii`, and the `AppGradients` theme extension. Light and dark themes are both `ThemeData` built from the same tokens, with Inter as the font family. `ThemeCubit` and `LocaleCubit` switch them at runtime.
+Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets read `ColorScheme`, `AppSpacing`, `AppRadii`, and the `AppGradients` theme extension. Light and dark themes are both `ThemeData` built from the same tokens, with Inter as the font family. `ThemeCubit` and `LocaleCubit` switch them at runtime. The debug banner is off.
 
 | Widget | Use it for |
 | --- | --- |
-| `AppText` | Text with the theme style and an optional line limit. Pass an already localized string. |
-| `AppTextField` | A labeled field: hint, error, validator, prefix, suffix, and `canReveal` for passwords. `buildAppInputDecoration` is the shared decoration. |
+| `AppTextField` | A labeled field: hint, error, validator, prefix, suffix, and `canReveal` for passwords. `buildAppInputDecoration` is the shared decoration. Labels and hints come from `AppLocalizations`. |
 | `GlobalButton` | The primary action. Gradient by default, with `isLoading`, `prefix`, and `suffix`. |
 | `GlobalLoading` | A centered progress indicator in the theme primary color. |
 | `AppSvgIcon` | An SVG asset, tinted with `color` when you pass one. |
@@ -204,6 +281,10 @@ Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets rea
 | `resolveMediaUrl` | Joins a relative media path to `AppConfig.baseUrl`. Absolute URLs stay unchanged. |
 | `openExternalUrl` | Opens a link outside the app and shows `AppMessenger` when the platform cannot. |
 
+Use `Text` with `Theme.of(context).textTheme` and strings from `AppLocalizations`. There is no `AppText` wrapper.
+
+`PreferencesStore` is the local string key-value API (Hive `Box<String>` named `preferences`). `Hive.initFlutter()` runs in `bootstrap`. Tokens stay in `flutter_secure_storage`. Tests can use `PreferencesStore.memory()` so they never touch the Hive lock.
+
 Assets and Inter are referenced through `flutter_gen` (`Assets.images`, `Assets.icons`, `FontFamily.inter`). `lib/gen/` is generated and gitignored.
 
 English and Bengali strings are in `lib/l10n`. `flutter: generate: true` runs `flutter gen-l10n` as part of `flutter analyze` and `flutter test`. `AppLocalizations.of` is non-nullable.
@@ -214,7 +295,7 @@ English and Bengali strings are in `lib/l10n`. `flutter: generate: true` runs `f
 
 Logging runs only for dev and staging. It redacts `Authorization` and fields whose names contain password, token, secret, or apikey. `AppConfig.allowsHttpLogs` forces logs off for prod even when `ENABLE_HTTP_LOGS` is true.
 
-Fake services throw in prod (`assert` and `StateError`), so a release build cannot silently keep the in-memory catalog.
+Fake auth services throw in prod (`assert` and `StateError`), so a release build cannot silently keep the in-memory login.
 
 | File | `FLAVOR` | `API_BASE_URL` | HTTP logs |
 | --- | --- | --- | --- |
@@ -255,19 +336,13 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on Ubuntu with Flutter 3.47.7: 
 
 Dev, staging, and prod install side by side.
 
-| Flavor | Entrypoint | Android application id | iOS bundle id | Display name |
+| Flavor | Config file | Android application id | iOS bundle id | Display name |
 | --- | --- | --- | --- | --- |
-| dev | `lib/main_dev.dart` | `com.enterprise.mvvm.dev` | `com.enterprise.mvvm.dev` | MVVM Dev |
-| staging | `lib/main_staging.dart` | `com.enterprise.mvvm.staging` | `com.enterprise.mvvm.staging` | MVVM Staging |
-| prod | `lib/main_prod.dart` | `com.enterprise.mvvm` | `com.enterprise.mvvm` | MVVM |
+| dev | `config/dev.json` | `com.enterprise.mvvm.dev` | `com.enterprise.mvvm.dev` | MVVM Dev |
+| staging | `config/staging.json` | `com.enterprise.mvvm.staging` | `com.enterprise.mvvm.staging` | MVVM Staging |
+| prod | `config/prod.json` | `com.enterprise.mvvm` | `com.enterprise.mvvm` | MVVM |
 
-```bash
-flutter run -t lib/main_dev.dart --dart-define-from-file=config/dev.json --flavor dev
-flutter run -t lib/main_staging.dart --dart-define-from-file=config/staging.json --flavor staging
-flutter run -t lib/main_prod.dart --dart-define-from-file=config/prod.json --flavor prod
-```
-
-Dart entrypoints select the fallback flavor. The Android product flavors and the iOS schemes (`dev`, `staging`, `prod`) select the application id, the display name, and the icon. Each flavor has `Debug`, `Release`, and `Profile` configurations (`Debug-dev`, and the same for staging and prod). A flavorless Android or iOS build is not a complete install.
+The Android product flavors and the iOS schemes (`dev`, `staging`, `prod`) select the application id, the display name, and the icon. Each flavor has `Debug`, `Release`, and `Profile` configurations (`Debug-dev`, and the same for staging and prod). A flavorless Android or iOS build is not a complete install.
 
 ## Release
 

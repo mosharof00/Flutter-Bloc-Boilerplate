@@ -1,6 +1,5 @@
 import 'package:enterprise_mvvm/core/theme/app_gradients.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
 class GlobalButton extends StatelessWidget {
@@ -67,9 +66,10 @@ class GlobalButton extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                     ],
                     Flexible(
-                      child: AppText(
+                      child: Text(
                         label,
                         maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: enabled

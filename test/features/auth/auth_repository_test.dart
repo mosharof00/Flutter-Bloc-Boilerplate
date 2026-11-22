@@ -11,7 +11,6 @@ import 'package:enterprise_mvvm/features/auth/data/services/auth_local_service.d
 import 'package:enterprise_mvvm/features/auth/data/services/fake_auth_api_service.dart';
 import 'package:enterprise_mvvm/features/auth/domain/models/user.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../fakes/memory_secure_store.dart';
 
@@ -23,10 +22,9 @@ void main() {
   late AuthEvents events;
   late AuthRepositoryImpl repository;
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
+  setUp(() {
     secure = MemorySecureStore();
-    preferences = PreferencesStore(await SharedPreferences.getInstance());
+    preferences = PreferencesStore.memory();
     events = AuthEvents();
     repository = _repository(secure, preferences, events);
   });

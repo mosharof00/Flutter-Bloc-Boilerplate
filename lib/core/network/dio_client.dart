@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:enterprise_mvvm/core/config/app_config.dart';
+import 'package:enterprise_mvvm/core/network/app_endpoints.dart';
 import 'package:enterprise_mvvm/core/network/auth_events.dart';
 import 'package:enterprise_mvvm/core/network/auth_interceptor.dart';
 import 'package:enterprise_mvvm/core/network/redacting_log_interceptor.dart';
@@ -10,6 +11,7 @@ import 'package:enterprise_mvvm/core/storage/token_store.dart';
 
 abstract final class DioNames {
   static const refresh = 'refresh';
+  static const catalog = 'catalog';
 }
 
 BaseOptions dioOptions(AppConfig config) {
@@ -24,7 +26,21 @@ BaseOptions dioOptions(AppConfig config) {
   );
 }
 
+BaseOptions catalogDioOptions(AppConfig config) {
+  return BaseOptions(
+    baseUrl: AppEndpoints.productsBaseUrl,
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 20),
+    headers: <String, Object>{
+      Headers.acceptHeader: Headers.jsonContentType,
+      Headers.contentTypeHeader: Headers.jsonContentType,
+    },
+  );
+}
+
 Dio createBaseDio(AppConfig config) => Dio(dioOptions(config));
+
+Dio createCatalogDio(AppConfig config) => Dio(catalogDioOptions(config));
 
 void addApiInterceptors({
   required Dio dio,

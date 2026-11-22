@@ -141,7 +141,7 @@ flowchart TD
 - **Routing**: `go_router` with a redirect driven by the `SessionRepository` stream through a `refreshListenable`, and an `AppRoutes` constants class (no route strings in views)
 - **Network**: `dio`, auth interceptor, token refresh interceptor, redacted logging interceptor, `DioException` mapped to typed failures
 - **Result type**: a small sealed `Result<T>` in core (no `dartz` / `fpdart`)
-- **Storage**: `flutter_secure_storage` for tokens, `shared_preferences` for theme, locale, and active role
+- **Storage**: `flutter_secure_storage` for tokens, Hive for theme, locale, and active role
 - **JSON**: `json_serializable` for DTOs only. Domain models and states are plain immutable Dart classes so ViewModels do not depend on codegen
 - **Assets and fonts**: `flutter_gen` for typed asset and font constants (no `google_fonts` runtime dependency)
 - **Config**: `--dart-define-from-file=config/<flavor>.json` for base URL and feature switches. Secrets never live in the repo.

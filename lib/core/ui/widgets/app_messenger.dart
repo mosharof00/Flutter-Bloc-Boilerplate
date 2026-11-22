@@ -1,5 +1,4 @@
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AppMessenger {
@@ -34,12 +33,12 @@ abstract final class AppMessenger {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     if (title != null)
-                      AppText(
+                      Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall
                             ?.copyWith(color: foreground),
                       ),
-                    AppText(
+                    Text(
                       message,
                       style: Theme.of(context).textTheme.bodySmall
                           ?.copyWith(color: foreground),

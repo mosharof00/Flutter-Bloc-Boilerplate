@@ -1,4 +1,3 @@
-import 'package:enterprise_mvvm/core/ui/widgets/app_text.dart';
 import 'package:enterprise_mvvm/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +16,8 @@ abstract final class AppDialog {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: AppText(title, style: Theme.of(context).textTheme.titleLarge),
-          content: AppText(message),
+          title: Text(title, style: Theme.of(context).textTheme.titleLarge),
+          content: Text(message),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -53,8 +52,8 @@ abstract final class AppDialog {
             Icons.info_outline,
             color: Theme.of(context).colorScheme.primary,
           ),
-          title: AppText(title, style: Theme.of(context).textTheme.titleLarge),
-          content: AppText(message),
+          title: Text(title, style: Theme.of(context).textTheme.titleLarge),
+          content: Text(message),
           actions: <Widget>[
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),

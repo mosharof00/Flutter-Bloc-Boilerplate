@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:enterprise_mvvm/core/error/failure_message.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
 import 'package:enterprise_mvvm/core/ui/view_model/paginated_view_model.dart';
 import 'package:enterprise_mvvm/core/ui/widgets/empty_view.dart';
@@ -55,60 +56,92 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 }
 
-class _Catalog extends StatelessWidget {
+class _Catalog extends StatefulWidget {
   const _Catalog({required this.state, required this.viewModel});
 
   final PaginatedReady<Product> state;
   final ProductsViewModel viewModel;
 
   @override
-  Widget build(BuildContext context) {
-    if (state.items.isEmpty) {
-      return const EmptyView();
-    }
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: viewModel.refresh,
-            child: ListView.separated(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              itemCount: state.items.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(height: AppSpacing.sm),
-              itemBuilder: (BuildContext context, int index) =>
-                  ProductCard(product: state.items[index]),
-            ),
-          ),
-        ),
-        _PageFooter(state: state, viewModel: viewModel),
-      ],
-    );
-  }
+  State<_Catalog> createState() => _CatalogState();
 }
 
-class _PageFooter extends StatelessWidget {
-  const _PageFooter({required this.state, required this.viewModel});
+class _CatalogState extends State<_Catalog> {
+  final ScrollController _controller = ScrollController();
 
-  final PaginatedReady<Product> state;
-  final ProductsViewModel viewModel;
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_controller.hasClients) {
+      return;
+    }
+    final position = _controller.position;
+    if (position.pixels >= position.maxScrollExtent - 240) {
+      unawaited(widget.viewModel.loadMore());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (state.isLoadingMore) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSpacing.md),
-        child: Center(child: CircularProgressIndicator()),
-      );
+    final state = widget.state;
+    if (state.items.isEmpty) {
+      return const EmptyView();
     }
-    if (!state.hasMore) {
-      return const SizedBox(height: AppSpacing.md);
-    }
-    return Center(
-      child: TextButton(
-        key: const Key('products_load_more'),
-        onPressed: () => unawaited(viewModel.loadMore()),
-        child: Text(AppLocalizations.of(context).loadMore),
+    final l10n = AppLocalizations.of(context);
+    final footerCount = state.isLoadingMore || state.loadMoreFailure != null
+        ? 1
+        : 0;
+    return RefreshIndicator(
+      onRefresh: widget.viewModel.refresh,
+      child: ListView.separated(
+        controller: _controller,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: state.items.length + footerCount,
+        separatorBuilder: (BuildContext context, int index) =>
+            const SizedBox(height: AppSpacing.sm),
+        itemBuilder: (BuildContext context, int index) {
+          if (index >= state.items.length) {
+            if (state.loadMoreFailure != null) {
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      failureMessage(l10n, state.loadMoreFailure!),
+                      textAlign: TextAlign.center,
+                    ),
+                    TextButton(
+                      key: const Key('products_retry_more'),
+                      onPressed: () => unawaited(widget.viewModel.loadMore()),
+                      child: Text(l10n.retry),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: Center(
+                child: CircularProgressIndicator(
+                  key: Key('products_loading_more'),
+                ),
+              ),
+            );
+          }
+          return ProductCard(product: state.items[index]);
+        },
       ),
     );
   }

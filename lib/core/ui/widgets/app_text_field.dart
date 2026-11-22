@@ -1,5 +1,4 @@
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/app_text.dart';
 import 'package:enterprise_mvvm/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -115,9 +114,9 @@ class AppTextField extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Flexible(child: AppText(label!, style: labelStyle)),
+            Flexible(child: Text(label!, style: labelStyle)),
             if (markRequired)
-              AppText(
+              Text(
                 ' *',
                 style: labelStyle?.copyWith(
                   color: Theme.of(context).colorScheme.error,
