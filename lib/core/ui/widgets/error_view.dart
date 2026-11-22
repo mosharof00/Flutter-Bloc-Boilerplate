@@ -1,7 +1,7 @@
 import 'package:enterprise_mvvm/core/error/failure.dart';
 import 'package:enterprise_mvvm/core/error/failure_message.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/global_button.dart';
+import 'package:enterprise_mvvm/core/ui/widgets/app_button.dart';
 import 'package:enterprise_mvvm/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +27,7 @@ class ErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...<Widget>[
               const SizedBox(height: AppSpacing.md),
-              GlobalButton(
+              AppButton(
                 onPressed: onRetry,
                 label: l10n.retry,
                 useGradient: false,

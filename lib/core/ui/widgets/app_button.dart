@@ -2,8 +2,8 @@ import 'package:enterprise_mvvm/core/theme/app_gradients.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
 import 'package:flutter/material.dart';
 
-class GlobalButton extends StatelessWidget {
-  const GlobalButton({
+class AppButton extends StatelessWidget {
+  const AppButton({
     super.key,
     required this.onPressed,
     required this.label,

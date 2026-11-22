@@ -1,6 +1,9 @@
-import 'package:enterprise_mvvm/core/network/json_body.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-final class ProductDto {
+part 'product_dto.g.dart';
+
+@JsonSerializable()
+class ProductDto {
   const ProductDto({
     required this.id,
     required this.title,
@@ -8,22 +11,19 @@ final class ProductDto {
     this.thumbnail,
   });
 
-  factory ProductDto.fromJson(Map<String, dynamic> json) {
-    return ProductDto(
-      id: json['id'] as int? ?? 0,
-      title: json['title'] as String? ?? '',
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      thumbnail: json['thumbnail'] as String?,
-    );
-  }
+  factory ProductDto.fromJson(Map<String, dynamic> json) =>
+      _$ProductDtoFromJson(json);
 
   final int id;
   final String title;
   final double price;
   final String? thumbnail;
+
+  Map<String, dynamic> toJson() => _$ProductDtoToJson(this);
 }
 
-final class ProductPageDto {
+@JsonSerializable()
+class ProductPageDto {
   const ProductPageDto({
     required this.products,
     required this.total,
@@ -31,24 +31,13 @@ final class ProductPageDto {
     required this.limit,
   });
 
-  factory ProductPageDto.fromJson(Map<String, dynamic> json) {
-    final raw = json['products'];
-    final products = <ProductDto>[];
-    if (raw is List<dynamic>) {
-      for (final item in raw) {
-        products.add(ProductDto.fromJson(asJsonMap(item)));
-      }
-    }
-    return ProductPageDto(
-      products: products,
-      total: json['total'] as int? ?? products.length,
-      skip: json['skip'] as int? ?? 0,
-      limit: json['limit'] as int? ?? products.length,
-    );
-  }
+  factory ProductPageDto.fromJson(Map<String, dynamic> json) =>
+      _$ProductPageDtoFromJson(json);
 
   final List<ProductDto> products;
   final int total;
   final int skip;
   final int limit;
+
+  Map<String, dynamic> toJson() => _$ProductPageDtoToJson(this);
 }

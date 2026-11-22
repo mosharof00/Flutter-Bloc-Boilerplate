@@ -53,7 +53,7 @@ flutter_bloc_boilerplate/
 │   │   ├── network/            # Dio, interceptors, DummyJSON catalog endpoint
 │   │   ├── result/             # Result / Success / Err
 │   │   ├── session/            # Session contracts (repository-owned)
-│   │   ├── storage/            # PreferencesStore (Hive), secure token store
+│   │   ├── storage/            # PreferencesStore (shared_preferences), secure token store
 │   │   ├── theme/              # Tokens, ThemeCubit, LocaleCubit
 │   │   ├── services/           # Logger, connectivity, url launcher, …
 │   │   └── ui/
@@ -105,7 +105,9 @@ Generated code is not committed. Create it once, then run a flavor.
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-`--flavor` alone only picks the native application id. Always pass the matching config file so Dart gets `FLAVOR`, `API_BASE_URL`, and `ENABLE_HTTP_LOGS`. Without that file, a prod install can still boot as **dev**.
+`--flavor` alone only picks the native application id. Always pass the matching config file so Dart gets `FLAVOR`, `API_BASE_URL`, and `ENABLE_HTTP_LOGS`.
+
+Release builds **require** `FLAVOR` from that file. If it is missing, `AppConfig` throws instead of falling back to the entrypoint default (so a prod APK cannot silently boot fake login). Debug and profile may still use the entrypoint fallback for local convenience.
 
 ```bash
 # Run
@@ -121,7 +123,7 @@ flutter build apk --flavor prod --release --dart-define-from-file=config/prod.js
 
 `lib/main.dart` is fine as the default entrypoint: the JSON sets `FLAVOR` and overrides the fallback. Optional dedicated entrypoints (`lib/main_dev.dart`, `lib/main_staging.dart`, `lib/main_prod.dart`) remain if you prefer `-t`. VS Code and Cursor launch configs live in `.vscode/launch.json`.
 
-Dev uses in-memory auth, so login does not need your backend. Products always load from the public DummyJSON catalog at `https://dummyjson.com` (`GET /products?limit&skip`) on a separate Dio client with no auth interceptors. Staging and prod register the real auth Dio services against the base URL in `config/`.
+Dev uses in-memory auth, so login does not need your backend. The products sample in **dev** loads from the public DummyJSON catalog at `https://dummyjson.com` (`GET /products?limit&skip`) on a separate Dio client with no auth interceptors. Staging and prod point that same catalog client at `API_BASE_URL` from `config/`, and register the real auth Dio services against that base URL.
 
 Sign in as `user@demo.com` / `123456`.
 
@@ -139,7 +141,7 @@ The fake API's first access token is already expired. `me` rejects it and `refre
 The user shell has three tabs, drawn with `google_nav_bar` and the SVGs in `assets/icons`:
 
 - **Home** shows the signed-in user, the theme toggle, the language toggle, and logout. A role switch appears only when the account has two roles.
-- **Products** is the fetch example. It loads ten items from DummyJSON, keeps the rows, and loads the next page automatically when you scroll near the bottom. Pull to refresh.
+- **Products** is the fetch example. In dev it loads ten items from DummyJSON; in staging/prod it calls your `API_BASE_URL`. It keeps the rows and loads the next page automatically when you scroll near the bottom. Pull to refresh.
 - **Profile** shows the account name, the active role, theme and language toggles, and logout.
 
 The Products and Profile tabs are created the first time you select them, so Home does not sit on a running shimmer or a second session screen.
@@ -157,6 +159,7 @@ Clone the repo, then rename it before you add product code.
 | Display name | Android `app_name`, iOS `APP_DISPLAY_NAME` | MVVM Dev / MVVM Staging / MVVM |
 | API | `config/dev.json`, `config/staging.json`, `config/prod.json` | your base URLs |
 | Auth | `lib/features/auth` | your login contract. Keep the session repository. |
+| Products | `lib/features/products` + `AppEndpoints` | Point staging/prod at your catalog API, or delete the sample feature. Dev alone uses DummyJSON. |
 
 `config/*.json` holds the flavor, the base URL, and the HTTP log switch. Secrets do not belong there, in source, or in `--dart-define` files that are committed.
 
@@ -170,8 +173,8 @@ A single-role app can delete `lib/app/roles/admin` after you remove it from `lib
 | Composition | `get_it`, created with `GetIt.asNewInstance()` and imported only under `lib/app`. |
 | Routing | `go_router`, with the session stream as `refreshListenable`. |
 | HTTP | `dio`, one client for API calls and a second client for refresh. |
-| Models | `equatable` and `json_serializable` where a DTO is generated. The product example parses JSON by hand so the fetch cycle stays visible. |
-| Storage | `flutter_secure_storage` for tokens, Hive via `PreferencesStore` for theme, locale, and the active role. |
+| Models | `equatable` and `json_serializable` for DTOs (auth and products). Domain models stay plain Dart. |
+| Storage | `flutter_secure_storage` for tokens, `shared_preferences` via `PreferencesStore` for theme, locale, and the active role. |
 | Images and icons | `cached_network_image`, `flutter_svg`, `flutter_gen`. |
 | Navigation chrome | `google_nav_bar`. |
 | Links | `url_launcher`. |
@@ -266,7 +269,7 @@ Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets rea
 | Widget | Use it for |
 | --- | --- |
 | `AppTextField` | A labeled field: hint, error, validator, prefix, suffix, and `canReveal` for passwords. `buildAppInputDecoration` is the shared decoration. Labels and hints come from `AppLocalizations`. |
-| `GlobalButton` | The primary action. Gradient by default, with `isLoading`, `prefix`, and `suffix`. |
+| `AppButton` | The primary action. Gradient by default, with `isLoading`, `prefix`, and `suffix`. |
 | `GlobalLoading` | A centered progress indicator in the theme primary color. |
 | `AppSvgIcon` | An SVG asset, tinted with `color` when you pass one. |
 | `AppIconButton` | A circular button. The back arrow is the default icon. Pass `onPressed`. |
@@ -275,7 +278,7 @@ Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets rea
 | `AsyncView` | `ViewState` rendered as loading, content, empty, or error. |
 | `EmptyView` / `ErrorView` | The empty and failed states, including retry. |
 | `GradientScaffold` | The branded page background. |
-| `OfflineBanner` | Shown while `ConnectivityService` reports offline. |
+| `OfflineBanner` | Shown while `ConnectivityService` reports offline. The default `DefaultConnectivityService` is a stub that always reports online; wire a real package when you need offline detection. |
 | `AppMessenger.show` | A floating snackbar. Pass `title`, `icon`, or `isError: true`. |
 | `AppDialog.confirm` / `AppDialog.alert` | A themed confirm or alert. `confirm` returns `bool`. |
 | `resolveMediaUrl` | Joins a relative media path to `AppConfig.baseUrl`. Absolute URLs stay unchanged. |
@@ -283,7 +286,7 @@ Colors, spacing, and radii live in `lib/core/theme/app_tokens.dart`. Widgets rea
 
 Use `Text` with `Theme.of(context).textTheme` and strings from `AppLocalizations`. There is no `AppText` wrapper.
 
-`PreferencesStore` is the local string key-value API (Hive `Box<String>` named `preferences`). `Hive.initFlutter()` runs in `bootstrap`. Tokens stay in `flutter_secure_storage`. Tests can use `PreferencesStore.memory()` so they never touch the Hive lock.
+`PreferencesStore` is the local string key-value API backed by `shared_preferences`. Tokens stay in `flutter_secure_storage`. Tests can use `PreferencesStore.memory()` so they never touch the platform plugin.
 
 Assets and Inter are referenced through `flutter_gen` (`Assets.images`, `Assets.icons`, `FontFamily.inter`). `lib/gen/` is generated and gitignored.
 
@@ -328,9 +331,11 @@ flutter test --coverage
 
 Tests are fakes first. `mocktail` is used only to verify an interaction, such as a submit that must not re-enter. Coverage includes repositories, view models, token refresh, permission checks, widget tests for login and the role shells, the product page, router redirects, a DI smoke test for every flavor, and the architecture test.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs on Ubuntu with Flutter 3.47.7: `pub get`, `build_runner`, format, analyze, and `flutter test --coverage`.
+GitHub Actions (`.github/workflows/ci.yml`) runs on Ubuntu with Flutter 3.47.7: `pub get`, `build_runner`, format, analyze, and `flutter test --coverage`, plus a separate job that builds a **prod** Android debug APK with `--dart-define-from-file=config/prod.json` so the flavor setup cannot rot unnoticed.
 
 `lib/gen/`, `**/*.g.dart`, and `lib/l10n/app_localizations*.dart` are gitignored. CI and a fresh clone generate them.
+
+`web/`, `windows/`, `linux/`, and `macos/` ship with the Flutter template. Native flavors and CI target Android and iOS; those other hosts are unflavored and unused by the sample app.
 
 ## Native flavors
 
@@ -350,4 +355,4 @@ The Android product flavors and the iOS schemes (`dev`, `staging`, `prod`) selec
 - Keep secrets out of the repo and out of `config/`.
 - Leave HTTP logging off in prod. The app already forces this.
 - Sign the Android and iOS release builds with your own keys. The debug signing config in Gradle is only there so a local release build can run.
-- Confirm the prod flavor resolves `AuthApiServiceImpl` and `ProductApiServiceImpl`, not the fakes. The DI smoke test checks this.
+- Confirm the prod flavor resolves `AuthApiServiceImpl` and `ProductApiServiceImpl`, not the fakes, and that the catalog Dio base URL is your API (not DummyJSON). The DI smoke test checks this.

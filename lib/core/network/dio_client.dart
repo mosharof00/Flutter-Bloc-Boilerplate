@@ -28,7 +28,7 @@ BaseOptions dioOptions(AppConfig config) {
 
 BaseOptions catalogDioOptions(AppConfig config) {
   return BaseOptions(
-    baseUrl: AppEndpoints.productsBaseUrl,
+    baseUrl: AppEndpoints.productsBaseUrl(config),
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 20),
     headers: <String, Object>{

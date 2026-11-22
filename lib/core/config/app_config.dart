@@ -11,10 +11,14 @@ final class AppConfig {
   });
 
   factory AppConfig.fromEnvironment({required AppFlavor fallbackFlavor}) {
-    final rawFlavor = const String.fromEnvironment('FLAVOR');
-    final flavor = rawFlavor.isEmpty
-        ? fallbackFlavor
-        : AppFlavor.values.byName(rawFlavor);
+    const rawFlavor = String.fromEnvironment('FLAVOR');
+    // `dart.vm.product` is true for release/AOT builds without importing Flutter.
+    const isRelease = bool.fromEnvironment('dart.vm.product');
+    final flavor = resolveFlavor(
+      rawFlavor: rawFlavor,
+      fallbackFlavor: fallbackFlavor,
+      isRelease: isRelease,
+    );
     const defaultUrl = 'https://api.example.com';
     final baseUrl = const String.fromEnvironment('API_BASE_URL');
     final logsRequested = const bool.fromEnvironment('ENABLE_HTTP_LOGS');
@@ -23,6 +27,29 @@ final class AppConfig {
       baseUrl: baseUrl.isEmpty ? defaultUrl : baseUrl,
       enableHttpLogs: allowsHttpLogs(flavor: flavor, requested: logsRequested),
     );
+  }
+
+  /// Resolves [FLAVOR] from dart-defines.
+  ///
+  /// Release builds must pass `--dart-define-from-file=config/<flavor>.json`
+  /// (or an equivalent `FLAVOR` define). Without it, a `--flavor prod` install
+  /// that still uses `lib/main.dart` would otherwise fall back to the
+  /// entrypoint default and boot fake login.
+  static AppFlavor resolveFlavor({
+    required String rawFlavor,
+    required AppFlavor fallbackFlavor,
+    required bool isRelease,
+  }) {
+    if (rawFlavor.isEmpty) {
+      if (isRelease) {
+        throw StateError(
+          'FLAVOR is missing. Pass --dart-define-from-file=config/<flavor>.json '
+          'so release builds cannot boot as the entrypoint fallback.',
+        );
+      }
+      return fallbackFlavor;
+    }
+    return AppFlavor.values.byName(rawFlavor);
   }
 
   static bool allowsHttpLogs({

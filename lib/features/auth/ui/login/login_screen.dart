@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:enterprise_mvvm/core/error/failure_message.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
+import 'package:enterprise_mvvm/core/ui/widgets/app_button.dart';
 import 'package:enterprise_mvvm/core/ui/widgets/app_text_field.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/global_button.dart';
 import 'package:enterprise_mvvm/core/ui/widgets/gradient_scaffold.dart';
 import 'package:enterprise_mvvm/features/auth/ui/login/login_state.dart';
 import 'package:enterprise_mvvm/features/auth/ui/login/login_view_model.dart';
@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                       const SizedBox(height: AppSpacing.lg),
-                      GlobalButton(
+                      AppButton(
                         key: const Key('login_submit'),
                         label: l10n.loginAction,
                         isLoading: loading,

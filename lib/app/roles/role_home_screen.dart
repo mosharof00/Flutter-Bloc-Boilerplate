@@ -6,7 +6,7 @@ import 'package:enterprise_mvvm/core/session/session.dart';
 import 'package:enterprise_mvvm/core/theme/app_tokens.dart';
 import 'package:enterprise_mvvm/core/theme/locale_cubit.dart';
 import 'package:enterprise_mvvm/core/theme/theme_cubit.dart';
-import 'package:enterprise_mvvm/core/ui/widgets/global_button.dart';
+import 'package:enterprise_mvvm/core/ui/widgets/app_button.dart';
 import 'package:enterprise_mvvm/core/ui/widgets/gradient_scaffold.dart';
 import 'package:enterprise_mvvm/features/auth/ui/session/session_view_model.dart';
 import 'package:enterprise_mvvm/l10n/app_localizations.dart';
@@ -69,7 +69,7 @@ class RoleHomeScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (next != null) ...<Widget>[
-                  GlobalButton(
+                  AppButton(
                     key: const Key('role_switch'),
                     label: l10n.switchToRole(roleLabel(l10n, next)),
                     useGradient: false,
@@ -77,7 +77,7 @@ class RoleHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                 ],
-                GlobalButton(
+                AppButton(
                   key: const Key('logout'),
                   label: l10n.logoutAction,
                   onPressed: () => unawaited(viewModel.logout()),

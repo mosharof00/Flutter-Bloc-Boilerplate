@@ -6,6 +6,7 @@ import 'package:enterprise_mvvm/core/access/access_policy.dart';
 import 'package:enterprise_mvvm/core/access/app_role.dart';
 import 'package:enterprise_mvvm/core/config/app_config.dart';
 import 'package:enterprise_mvvm/core/config/app_flavor.dart';
+import 'package:enterprise_mvvm/core/network/app_endpoints.dart';
 import 'package:enterprise_mvvm/core/network/auth_events.dart';
 import 'package:enterprise_mvvm/core/network/dio_client.dart';
 import 'package:enterprise_mvvm/core/services/analytics_service.dart';
@@ -75,11 +76,15 @@ void main() {
       expect(auth, isA<AuthRepositoryImpl>());
       expect(getIt<ProductRepository>(), isA<ProductRepository>());
       expect(getIt<ProductApiService>(), isA<ProductApiServiceImpl>());
-      expect(getIt<Dio>(instanceName: DioNames.catalog), isA<Dio>());
+      final catalog = getIt<Dio>(instanceName: DioNames.catalog);
+      expect(catalog, isA<Dio>());
       if (flavor == AppFlavor.dev) {
         expect(getIt<AuthApiService>(), isA<FakeAuthApiService>());
+        expect(catalog.options.baseUrl, AppEndpoints.productsDemoBaseUrl);
       } else {
         expect(getIt<AuthApiService>(), isA<AuthApiServiceImpl>());
+        expect(catalog.options.baseUrl, 'https://example.test');
+        expect(catalog.options.baseUrl, isNot(contains('dummyjson')));
       }
 
       container.openSessionScope(

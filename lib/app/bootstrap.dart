@@ -12,11 +12,9 @@ import 'package:enterprise_mvvm/core/services/app_logger.dart';
 import 'package:enterprise_mvvm/core/services/crash_reporter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> bootstrap(AppFlavor flavor) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
   final config = AppConfig.fromEnvironment(fallbackFlavor: flavor);
   final container = await buildContainer(config);
   installErrorHandlers(container);

@@ -1,24 +1,23 @@
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// String key-value storage. Production uses Hive; tests can use [PreferencesStore.memory].
+/// String key-value storage. Production uses [SharedPreferences];
+/// tests can use [PreferencesStore.memory].
 final class PreferencesStore {
-  PreferencesStore._(this._box, this._memory);
+  PreferencesStore._(this._prefs, this._memory);
 
-  PreferencesStore(Box<String> box) : this._(box, null);
+  PreferencesStore(SharedPreferences prefs) : this._(prefs, null);
 
-  /// In-memory store for unit and widget tests. Does not touch Hive.
+  /// In-memory store for unit and widget tests. Does not touch the platform.
   factory PreferencesStore.memory([Map<String, String>? seed]) {
     return PreferencesStore._(null, Map<String, String>.of(seed ?? const {}));
   }
 
-  static const boxName = 'preferences';
-
-  final Box<String>? _box;
+  final SharedPreferences? _prefs;
   final Map<String, String>? _memory;
 
   static Future<PreferencesStore> open() async {
-    final box = await Hive.openBox<String>(boxName);
-    return PreferencesStore(box);
+    final prefs = await SharedPreferences.getInstance();
+    return PreferencesStore(prefs);
   }
 
   String? read(String key) {
@@ -26,7 +25,7 @@ final class PreferencesStore {
     if (memory != null) {
       return memory[key];
     }
-    return _box!.get(key);
+    return _prefs!.getString(key);
   }
 
   Future<void> write(String key, String value) async {
@@ -35,7 +34,7 @@ final class PreferencesStore {
       memory[key] = value;
       return;
     }
-    await _box!.put(key, value);
+    await _prefs!.setString(key, value);
   }
 
   Future<void> delete(String key) async {
@@ -44,6 +43,6 @@ final class PreferencesStore {
       memory.remove(key);
       return;
     }
-    await _box!.delete(key);
+    await _prefs!.remove(key);
   }
 }

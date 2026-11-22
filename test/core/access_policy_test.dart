@@ -75,4 +75,31 @@ void main() {
       isFalse,
     );
   });
+
+  test('release builds require an explicit FLAVOR define', () {
+    expect(
+      () => AppConfig.resolveFlavor(
+        rawFlavor: '',
+        fallbackFlavor: AppFlavor.dev,
+        isRelease: true,
+      ),
+      throwsA(isA<StateError>()),
+    );
+    expect(
+      AppConfig.resolveFlavor(
+        rawFlavor: '',
+        fallbackFlavor: AppFlavor.dev,
+        isRelease: false,
+      ),
+      AppFlavor.dev,
+    );
+    expect(
+      AppConfig.resolveFlavor(
+        rawFlavor: 'prod',
+        fallbackFlavor: AppFlavor.dev,
+        isRelease: true,
+      ),
+      AppFlavor.prod,
+    );
+  });
 }

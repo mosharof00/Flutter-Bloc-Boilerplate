@@ -1,7 +1,14 @@
-/// Public demo catalog used by the products feature.
+import 'package:enterprise_mvvm/core/config/app_config.dart';
+
+/// Catalog host selection for the products sample feature.
 ///
-/// Auth still uses [AppConfig.baseUrl]. Products use this host so the fetch
-/// cycle works without a real backend.
+/// Dev uses the public DummyJSON demo so the fetch cycle works without a
+/// backend. Staging and prod use [AppConfig.baseUrl] so a forgotten sample
+/// cannot ship traffic to a public demo API.
 abstract final class AppEndpoints {
-  static const productsBaseUrl = 'https://dummyjson.com';
+  static const productsDemoBaseUrl = 'https://dummyjson.com';
+
+  static String productsBaseUrl(AppConfig config) {
+    return config.useFakeServices ? productsDemoBaseUrl : config.baseUrl;
+  }
 }
